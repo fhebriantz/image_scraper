@@ -57,17 +57,7 @@
         
 
         <h2 class="mt-4 text-center">Gambar yang Diunduh</h2>
-        <div id="imageGallery" class="d-flex flex-wrap justify-content-center">
-            {% for image in images %}
-            <div>
-                <img src="{{ url_for('static', filename=image) }}" alt="Downloaded Image" class="img-thumbnail"
-                    data-bs-toggle="modal"
-                    data-bs-target="#imageModal" 
-                    title="{{ image.split('/')[-1] }}"  
-                    onclick="showImage('{{ url_for('static', filename=image) }}', '{{ image.split('/')[-1] }}')">
-            </div>
-            {% endfor %}
-        </div>
+        <div id="imageGallery" class="d-flex flex-wrap justify-content-center"></div>
     </div>
 
     <!-- Bootstrap JS -->
@@ -92,6 +82,52 @@
             modalTitle.textContent = imageName; // Ubah judul modal jadi nama file
         }
     </script>
+
+    <script>
+        let page = 1;
+        let loading = false;
+
+        function loadImages() {
+            if (loading) return;
+            loading = true;
+
+            fetch(`/load_images?page=${page}`)
+                .then(response => response.json())
+                .then(images => {
+                    if (images.length === 0) return; // Stop jika tidak ada gambar baru
+
+                    const gallery = document.getElementById("imageGallery");
+                    images.forEach(image => {
+                        const imgElement = document.createElement("img");
+                        imgElement.src = `/static/${image}`;
+                        imgElement.className = "img-thumbnail";
+                        imgElement.style.width = "180px";
+                        imgElement.style.height = "220px";
+                        imgElement.style.objectFit = "cover";
+                        imgElement.style.margin = "5px";
+                        imgElement.setAttribute("data-bs-toggle", "modal");
+                        imgElement.setAttribute("data-bs-target", "#imageModal");
+                        imgElement.onclick = () => showImage(`/static/${image}`, image);
+
+                        gallery.appendChild(imgElement);
+                    });
+
+                    page++;
+                    loading = false;
+                });
+        }
+
+        // Muat gambar pertama kali
+        loadImages();
+
+        // Event listener untuk infinite scroll
+        window.addEventListener("scroll", function () {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+                loadImages();
+            }
+        });
+    </script>
+
 </body>
 
 </html>
