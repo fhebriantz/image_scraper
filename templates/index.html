@@ -14,7 +14,7 @@
 
 <!-- Modal Bootstrap untuk menampilkan gambar besar -->
 <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="imageModalLabel">Gambar Besar</h5>
@@ -59,7 +59,7 @@
         <h2 class="mt-4 text-center">Gambar yang Diunduh</h2>
         <div id="imageGallery" class="d-flex flex-wrap justify-content-center">
             {% for image in images %}
-            <div class="m-2">
+            <div>
                 <img src="{{ url_for('static', filename=image) }}" alt="Downloaded Image" class="img-thumbnail"
                     data-bs-toggle="modal"
                     data-bs-target="#imageModal" 
