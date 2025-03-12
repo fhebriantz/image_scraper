@@ -14,7 +14,12 @@ def scrape_images(base_url, start_page, end_page):
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-software-rasterizer")  # Mencegah fallback WebGL
+    chrome_options.add_argument("--enable-unsafe-swiftshader")  # Paksa WebGL software jika perlu
     chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--ignore-certificate-errors")
+    chrome_options.add_argument("--disable-web-security")
+    chrome_options.add_argument("--allow-running-insecure-content")
 
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=chrome_options)
