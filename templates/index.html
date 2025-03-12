@@ -55,6 +55,16 @@
             </div>
         </form>
         
+        <label for="filterSelect" class="form-label">Filter Gambar</label>
+        <select id="filterSelect" class="form-control mb-3">
+            <option value="">Semua</option>
+            <option value="1-1000">1 - 1000</option>
+            <option value="1001-2000">1001 - 2000</option>
+            <option value="2001-3000">2001 - 3000</option>
+            <option value="3001-4000">3001 - 4000</option>
+            <option value="4001-5000">4001 - 5000</option>
+            <option value="5001-6000">5001 - 6000</option>
+        </select>
 
         <h2 class="mt-4 text-center">Gambar yang Diunduh</h2>
         <!-- Input Search -->
@@ -86,76 +96,73 @@
         }
     </script>
 
-    <script>
-        let page = 1;
-        let loading = false;
-        let currentQuery = "";  // Untuk menyimpan pencarian saat ini
+   <script>
+    let page = 1;
+    let loading = false;
+    let currentQuery = "";
+    let currentFilter = "";
 
-        function loadImages(reset = false) {
-            if (loading) return;
-            loading = true;
+    function loadImages(reset = false) {
+        if (loading) return;
+        loading = true;
 
-            fetch(`/load_images?page=${page}&query=${encodeURIComponent(currentQuery)}`)
-                .then(response => response.json())
-                .then(images => {
-                    if (reset) {
-                        document.getElementById("imageGallery").innerHTML = ""; // Hapus gambar lama jika reset
-                        page = 1; // Reset halaman ke awal
-                    }
+        fetch(`/load_images?page=${page}&query=${encodeURIComponent(currentQuery)}&filter=${encodeURIComponent(currentFilter)}`)
+            .then(response => response.json())
+            .then(images => {
+                if (reset) {
+                    document.getElementById("imageGallery").innerHTML = "";
+                    page = 1;
+                }
 
-                    if (images.length === 0) {
-                        loading = false;
-                        return;
-                    }
-
-                    const gallery = document.getElementById("imageGallery");
-                    images.forEach(image => {
-                        const imgElement = document.createElement("img");
-                        imgElement.src = `/static/${image}`;
-                        imgElement.className = "img-thumbnail";
-                        imgElement.style.width = "180px";
-                        imgElement.style.height = "220px";
-                        imgElement.style.objectFit = "cover";
-                        imgElement.setAttribute("data-bs-toggle", "modal");
-                        imgElement.setAttribute("data-bs-target", "#imageModal");
-                        imgElement.onclick = () => showImage(`/static/${image}`, image);
-
-                        gallery.appendChild(imgElement);
-                    });
-
-                    page++;
+                if (images.length === 0 && !reset) {
                     loading = false;
+                    return;
+                }
+
+                const gallery = document.getElementById("imageGallery");
+                images.forEach(image => {
+                    const imgElement = document.createElement("img");
+                    imgElement.src = `/static/images/${image}`;
+                    imgElement.className = "img-thumbnail";
+                    imgElement.style.width = "180px";
+                    imgElement.style.height = "220px";
+                    imgElement.style.objectFit = "cover";
+                    imgElement.setAttribute("data-bs-toggle", "modal");
+                    imgElement.setAttribute("data-bs-target", "#imageModal");
+                    imgElement.onclick = () => showImage(`/static/images/${image}`, image);
+
+                    gallery.appendChild(imgElement);
                 });
+
+                page++;
+                loading = false;
+            });
+    }
+
+    // Infinite Scroll Event
+    window.addEventListener("scroll", function () {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+            loadImages();
         }
+    });
 
-        // Event listener untuk infinite scroll
-        window.addEventListener("scroll", function () {
-            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
-                loadImages();
-            }
-        });
+    // Search Function
+    document.getElementById("searchInput").addEventListener("input", function () {
+        currentQuery = this.value;
+        page = 1;
+        loadImages(true);
+    });
 
-        // Event listener untuk pencarian
-        document.getElementById("searchInput").addEventListener("input", function () {
-            let newQuery = this.value.toLowerCase();
+    // Filter Dropdown
+    document.getElementById("filterSelect").addEventListener("change", function () {
+        currentFilter = this.value;
+        page = 1;
+        loadImages(true);
+    });
 
-            if (newQuery !== currentQuery) {
-                currentQuery = newQuery;
-                page = 1;
-                loadImages(true); // Muat ulang gambar berdasarkan pencarian
-            }
+    loadImages();
+</script>
 
-            // Jika input kosong, reset pencarian
-            if (newQuery === "") {
-                currentQuery = "";
-                page = 1;
-                loadImages(true);
-            }
-        });
-
-        // Muat gambar pertama kali
-        loadImages();
-    </script>
 
 
 </body>

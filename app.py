@@ -30,28 +30,35 @@ def index():
 
     return render_template("index.html")  # Tidak mengirim gambar langsung
 
-@app.route("/load_images")
+@app.route("/load_images", methods=["GET"])
 def load_images():
     page = int(request.args.get("page", 1))
-    search_query = request.args.get("query", "").lower()  # Ambil query dari frontend
-    per_page = 10  # Jumlah gambar per halaman
+    search_query = request.args.get("query", "").lower()
+    filter_range = request.args.get("filter", "")
+    per_page = 10  # Set jumlah gambar per halaman
 
     if os.path.exists(IMAGE_FOLDER):
-        images = [f"images/{img}" for img in os.listdir(IMAGE_FOLDER) if img.endswith((".jpg", ".png"))]
-        images.sort()  # Urutkan agar lebih rapi
+        images = [img for img in os.listdir(IMAGE_FOLDER) if img.endswith((".jpg", ".png"))]
+        images.sort()
 
-        # Jika ada pencarian, filter hasilnya
+        # Filter berdasarkan pencarian nama file
         if search_query:
             images = [img for img in images if search_query in img.lower()]
 
-        # Pagination (ambil subset dari daftar gambar)
-        start = (page - 1) * per_page
-        end = start + per_page
-        paginated_images = images[start:end]
+        # Filter berdasarkan rentang angka di nama file (image_X_0.jpg)
+        if filter_range:
+            start, end = map(int, filter_range.split("-"))
+            images = [img for img in images if any(img.startswith(f"image_{i}_") for i in range(start, end + 1))]
+
+        # Pagination (Infinite Scroll)
+        start_idx = (page - 1) * per_page
+        end_idx = start_idx + per_page
+        paginated_images = images[start_idx:end_idx]
     else:
         paginated_images = []
 
     return jsonify(paginated_images)
+
 
 @app.route("/reset", methods=["POST"])
 def reset():
