@@ -5,7 +5,10 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
+from concurrent.futures import ThreadPoolExecutor
 
 def scrape_images(base_url, start_page, end_page):
     chrome_options = Options()
@@ -24,10 +27,10 @@ def scrape_images(base_url, start_page, end_page):
         url = f"{base_url}{page}/"
         print(f"📡 Membuka {url}...")
         driver.get(url)
-        time.sleep(5)
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "img")))
 
         # Cari semua elemen gambar
-        images = driver.find_elements(By.TAG_NAME, "img")
+        images = driver.find_elements(By.XPATH, f"//img[contains(@alt, 'Photo #{page}')]")
         selected_images = []
 
         for img in images:
@@ -48,6 +51,7 @@ def scrape_images(base_url, start_page, end_page):
                         for chunk in response.iter_content(1024):
                             file.write(chunk)
                     print(f"✅ Gambar disimpan: {image_path}")
+                    driver.execute_script("window.stop();")  # Menghentikan load halaman setelah mendapatkan gambar
             except Exception as e:
                 print(f"❌ Gagal mengunduh gambar: {e}")
 

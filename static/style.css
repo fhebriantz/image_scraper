@@ -57,8 +57,8 @@ button:hover {
 }
 
 #imageGallery img {
-    width: 150px;
-    height: 200px;
+    width: 180px;
+    height: 220px;
     /* Tentukan ukuran agar seragam */
     object-fit: cover;
     /* Mencegah stretch, hanya menampilkan bagian yang muat */
