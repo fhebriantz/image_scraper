@@ -5,7 +5,7 @@ from scraper import scrape_images
 
 app = Flask(__name__)
 
-# Folder untuk menyimpan gambar
+# Folder untuk menyimpan semua gambar
 IMAGE_FOLDER = "static/images"
 
 # Fungsi untuk menghapus semua gambar
