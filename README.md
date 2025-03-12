@@ -4,7 +4,7 @@
 
 1. Clone repository ini:
 
-git clone https://github.com/user/web_scraper.git cd web_scraper
+git clone https://github.com/user/web_scraper.git cd image_scraper
 
 2. Install dependensi:
 
