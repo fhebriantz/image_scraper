@@ -32,20 +32,26 @@ def index():
 
 @app.route("/load_images")
 def load_images():
-    """Mengambil gambar secara bertahap untuk infinite scroll."""
-    page = int(request.args.get("page", 1))  # Halaman yang diminta
-    if not os.path.exists(IMAGE_FOLDER):
-        return jsonify([])
+    page = int(request.args.get("page", 1))
+    search_query = request.args.get("query", "").lower()  # Ambil query dari frontend
+    per_page = 10  # Jumlah gambar per halaman
 
-    images = sorted(
-        [f"images/{img}" for img in os.listdir(IMAGE_FOLDER) if img.endswith((".jpg", ".png"))]
-    )
+    if os.path.exists(IMAGE_FOLDER):
+        images = [f"images/{img}" for img in os.listdir(IMAGE_FOLDER) if img.endswith((".jpg", ".png"))]
+        images.sort()  # Urutkan agar lebih rapi
 
-    start = (page - 1) * PER_PAGE
-    end = start + PER_PAGE
-    paginated_images = images[start:end]
+        # Jika ada pencarian, filter hasilnya
+        if search_query:
+            images = [img for img in images if search_query in img.lower()]
 
-    return jsonify(paginated_images)  # Mengirim gambar sesuai halaman
+        # Pagination (ambil subset dari daftar gambar)
+        start = (page - 1) * per_page
+        end = start + per_page
+        paginated_images = images[start:end]
+    else:
+        paginated_images = []
+
+    return jsonify(paginated_images)
 
 @app.route("/reset", methods=["POST"])
 def reset():

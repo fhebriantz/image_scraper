@@ -57,6 +57,9 @@
         
 
         <h2 class="mt-4 text-center">Gambar yang Diunduh</h2>
+        <!-- Input Search -->
+        <input type="text" id="searchInput" class="form-control mb-3" placeholder="Cari gambar...">
+
         <div id="imageGallery" class="d-flex flex-wrap justify-content-center"></div>
     </div>
 
@@ -86,15 +89,24 @@
     <script>
         let page = 1;
         let loading = false;
+        let currentQuery = "";  // Untuk menyimpan pencarian saat ini
 
-        function loadImages() {
+        function loadImages(reset = false) {
             if (loading) return;
             loading = true;
 
-            fetch(`/load_images?page=${page}`)
+            fetch(`/load_images?page=${page}&query=${encodeURIComponent(currentQuery)}`)
                 .then(response => response.json())
                 .then(images => {
-                    if (images.length === 0) return; // Stop jika tidak ada gambar baru
+                    if (reset) {
+                        document.getElementById("imageGallery").innerHTML = ""; // Hapus gambar lama jika reset
+                        page = 1; // Reset halaman ke awal
+                    }
+
+                    if (images.length === 0) {
+                        loading = false;
+                        return;
+                    }
 
                     const gallery = document.getElementById("imageGallery");
                     images.forEach(image => {
@@ -116,16 +128,35 @@
                 });
         }
 
-        // Muat gambar pertama kali
-        loadImages();
-
         // Event listener untuk infinite scroll
         window.addEventListener("scroll", function () {
             if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
                 loadImages();
             }
         });
+
+        // Event listener untuk pencarian
+        document.getElementById("searchInput").addEventListener("input", function () {
+            let newQuery = this.value.toLowerCase();
+
+            if (newQuery !== currentQuery) {
+                currentQuery = newQuery;
+                page = 1;
+                loadImages(true); // Muat ulang gambar berdasarkan pencarian
+            }
+
+            // Jika input kosong, reset pencarian
+            if (newQuery === "") {
+                currentQuery = "";
+                page = 1;
+                loadImages(true);
+            }
+        });
+
+        // Muat gambar pertama kali
+        loadImages();
     </script>
+
 
 </body>
 
