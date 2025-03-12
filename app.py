@@ -19,7 +19,8 @@ def index():
     images = []
     
     if request.method == "POST":
-        url = request.form["url"]
+        username = request.form["username"]
+        url = f'https://fapello.com/{username}/'
         start_page = int(request.form["start_page"])
         end_page = int(request.form["end_page"])
 
