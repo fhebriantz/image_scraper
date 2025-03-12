@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Scraper</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <h1>Web Scraper</h1>
+
+    <form method="POST">
+        <label>URL Dasar:</label>
+        <input type="text" name="url" placeholder="https://example.com/page/" required>
+
+        <label>Halaman Dari:</label>
+        <input type="number" name="start_page" min="1" value="1" required>
+
+        <label>Halaman Sampai:</label>
+        <input type="number" name="end_page" min="1" value="10" required>
+
+        <button type="submit">Mulai Scraping</button>
+        <button type="button" id="resetBtn">Reset Gambar</button>
+    </form>
+
+    <h2>Gambar yang Diunduh</h2>
+    <div id="imageGallery">
+        {% for image in images %}
+        <img src="{{ url_for('static', filename=image) }}" alt="Downloaded Image">
+        {% endfor %}
+    </div>
+
+    <script>
+        document.getElementById("resetBtn").addEventListener("click", function () {
+            fetch("/reset", { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    location.reload();
+                });
+        });
+    </script>
+</body>
+
+</html>
