@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 import os
 import shutil
 from scraper import scrape_images
+import math
 
 app = Flask(__name__)
 
@@ -29,6 +30,21 @@ def index():
         return redirect(url_for("index"))
 
     return render_template("index.html")  # Tidak mengirim gambar langsung
+
+@app.route("/get_filters", methods=["GET"])
+def get_filters():
+    """Menghasilkan daftar filter berdasarkan jumlah gambar dalam folder"""
+    if os.path.exists(IMAGE_FOLDER):
+        images = [img for img in os.listdir(IMAGE_FOLDER) if img.endswith((".jpg", ".png"))]
+        images.sort()
+        total_images = len(images)
+        max_range = math.ceil(total_images / 100)  # Hitung kelipatan 100
+        filters = [f"{i*100+1}-{(i+1)*100}" for i in range(max_range)]
+    else:
+        filters = []
+
+    return jsonify(filters)
+
 
 @app.route("/load_images", methods=["GET"])
 def load_images():

@@ -55,20 +55,19 @@
             </div>
         </form>
         
-        <label for="filterSelect" class="form-label">Filter Gambar</label>
-        <select id="filterSelect" class="form-control mb-3">
-            <option value="">Semua</option>
-            <option value="1-1000">1 - 1000</option>
-            <option value="1001-2000">1001 - 2000</option>
-            <option value="2001-3000">2001 - 3000</option>
-            <option value="3001-4000">3001 - 4000</option>
-            <option value="4001-5000">4001 - 5000</option>
-            <option value="5001-6000">5001 - 6000</option>
-        </select>
+        <div class="mb-3">
+            <label for="searchInput" class="form-label">🔍 Cari Gambar:</label>
+            <input type="text" id="searchInput" class="form-control" placeholder="Cari berdasarkan nama file...">
+        </div>
+        
+        <div class="mb-3">
+            <label for="filterSelect" class="form-label">🖼 Filter Gambar:</label>
+            <select id="filterSelect" class="form-select">
+                <option value="">Semua</option>
+            </select>
+        </div>
 
         <h2 class="mt-4 text-center">Gambar yang Diunduh</h2>
-        <!-- Input Search -->
-        <input type="text" id="searchInput" class="form-control mb-3" placeholder="Cari gambar...">
 
         <div id="imageGallery" class="d-flex flex-wrap justify-content-center"></div>
     </div>
@@ -139,6 +138,23 @@
             });
     }
 
+    // Muat filter dropdown secara dinamis
+    function loadFilters() {
+        fetch("/get_filters")
+            .then(response => response.json())
+            .then(filters => {
+                const filterSelect = document.getElementById("filterSelect");
+                filterSelect.innerHTML = '<option value="">Semua</option>'; // Reset option pertama
+
+                filters.forEach(filter => {
+                    const option = document.createElement("option");
+                    option.value = filter;
+                    option.textContent = filter;
+                    filterSelect.appendChild(option);
+                });
+            });
+    }
+
     // Infinite Scroll Event
     window.addEventListener("scroll", function () {
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
@@ -146,14 +162,14 @@
         }
     });
 
-    // Search Function
+    // Search Event
     document.getElementById("searchInput").addEventListener("input", function () {
         currentQuery = this.value;
         page = 1;
         loadImages(true);
     });
 
-    // Filter Dropdown
+    // Filter Event
     document.getElementById("filterSelect").addEventListener("change", function () {
         currentFilter = this.value;
         page = 1;
@@ -161,6 +177,7 @@
     });
 
     loadImages();
+    loadFilters();
 </script>
 
 
